@@ -35,7 +35,7 @@ Hardware Requirements:
 	
 Software Requirements:
 
-	OS: Ubuntu 16.04, Ubuntu 18.04 or CentOS 7
+	OS: Ubuntu 16.04/18.04/20.04 or CentOS 7/8
 	
 	CUDA & Nvidia Drivers: 10.1.2 & v418.87+, 10.2 & v440.33+ or 11.0 & v450.36+
 	
