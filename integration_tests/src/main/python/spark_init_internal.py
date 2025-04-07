@@ -18,6 +18,9 @@ import pytest
 import re
 import stat
 import traceback
+from multiprocessing import Value
+import ctypes
+from threading import atomic
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -27,6 +30,11 @@ logging.basicConfig(
 
 _CONF_ENV_PREFIX = 'PYSP_TEST_'
 _EXECUTOR_ENV_PREFIX = 'spark_executorEnv_'
+
+# Initialize the shared boolean for timeout failure logging
+_timeout_failure_logged = Value(ctypes.c_bool, False)
+
+_log_count = atomic.AtomicInteger(0)
 
 def env_for_conf(spark_conf_name):
     # escape underscores
@@ -154,10 +162,8 @@ def pytest_sessionstart(session):
     # and set exceptions there
     global default_timeout_seconds
     global default_dump_threads
-    global set_spark_job_timeout_failure_logged
     default_timeout_seconds = 60 * 60
     default_dump_threads = True
-    set_spark_job_timeout_failure_logged = False
     _s._jvm.org.apache.spark.rapids.tests.TimeoutSparkListener.init(_s._jsc)
     global _spark
     _spark = _s
@@ -284,12 +290,9 @@ def set_spark_job_timeout(request):
             dump_threads
         )
     except Exception as e:
-        if not set_spark_job_timeout_failure_logged:
-            set_spark_job_timeout_failure_logged = True
+        if _log_count.compare_and_set(0, 1):
             logger.warning(f"set_spark_job_timeout: Ignoring pre-test exception : {traceback.format_exc()}")
-        pass
     # yield for test
     yield
-    # after the test
 
 
