@@ -254,6 +254,7 @@ run_iceberg_tests() {
   # get the patch version of Spark
   SPARK_PATCH_VER=$(echo "$SPARK_VER" | cut -d. -f3)
 
+<<<<<<< HEAD
   # Determine Iceberg version based on Spark version and Scala version
   # Scala 2.12 + Spark 3.5.x -> Iceberg 1.6.1
   # Scala 2.13 + Spark 3.5.0-3.5.3 -> Iceberg 1.6.1
@@ -276,6 +277,10 @@ run_iceberg_tests() {
       return 0
     fi
   else
+=======
+  # RAPIDS-iceberg only supports Spark 3.5.x yet
+  if [[ "$IS_SPARK_35X" -ne "1" ]]; then
+>>>>>>> de3cbe1ae5cf32f43ff7470015fd50a0815b1e40
     echo "!!!! Skipping Iceberg tests. GPU acceleration of Iceberg is not supported on $ICEBERG_SPARK_VER"
     return 0
   fi
