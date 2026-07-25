@@ -469,7 +469,7 @@ object GpuOverrides extends Logging {
   private[this] lazy val regexList: Seq[String] = Seq("\\", "\u0000", "\\x", "\t", "\n", "\r",
     "\f", "\\a", "\\e", "\\cx", "[", "]", "^", "&", ".", "*", "\\d", "\\D", "\\h", "\\H", "\\s",
     "\\S", "\\v", "\\V", "\\w", "\\w", "\\p", "$", "\\b", "\\B", "\\A", "\\G", "\\Z", "\\z", "\\R",
-    "?", "|", "(", ")", "{", "}", "\\k", "\\Q", "\\E", ":", "!", "<=", ">")
+    "?", "+", "|", "(", ")", "{", "}", "\\k", "\\Q", "\\E", ":", "!", "<=", ">")
   val regexMetaChars = ".$^[]\\|?*+(){}"
   /**
    * Provides a way to log an info message about how long an operation took in milliseconds.
@@ -968,6 +968,9 @@ object GpuOverrides extends Logging {
           GpuTypeShims.additionalCommonOperatorSupportedTypes).nested(),
         TypeSig.all),
       (currentRow, conf, p, r) => new ExprMeta[BoundReference](currentRow, conf, p, r) {
+        // BoundReference should not be directly wrapped in a bridge (unit test compatibility)
+        override def isBridgeCompatible: Boolean = false
+        
         override def convertToGpuImpl(): GpuExpression = GpuBoundReference(
           currentRow.ordinal, currentRow.dataType, currentRow.nullable)(
           NamedExpression.newExprId, "")
@@ -984,14 +987,14 @@ object GpuOverrides extends Logging {
           // This is the only NOOP operator.  It goes away when things are bound
           override def convertToGpuImpl(): Expression = att
 
-        // There are so many of these that we don't need to print them out, unless it
-        // will not work on the GPU
-        override def print(append: StringBuilder, depth: Int, all: Boolean): Unit = {
-          if (!this.canThisBeReplaced || cannotRunOnGpuBecauseOfSparkPlan) {
-            super.print(append, depth, all)
+          // There are so many of these that we don't need to print them out, unless it
+          // will not work on the GPU
+          override def print(append: StringBuilder, depth: Int, all: Boolean): Unit = {
+            if (!this.canThisBeReplaced || cannotRunOnGpuBecauseOfSparkPlan) {
+              super.print(append, depth, all)
+            }
           }
-        }
-      }),
+        }),
 
     expr[ToDegrees](
       "Converts radians to degrees",
@@ -1564,6 +1567,9 @@ object GpuOverrides extends Logging {
             TypeSig.MAP + GpuTypeShims.additionalArithmeticSupportedTypes).nested(),
           TypeSig.all))),
       (a, conf, p, r) => new ExprMeta[Coalesce](a, conf, p, r) {
+        // Allow foldable non-literal Coalesce (e.g. coalesce(cast(null as bigint), -1001)):
+        // AQE can regenerate these after ConstantFolding ran; GpuCoalesce evaluates them on GPU.
+        override val isFoldableNonLitAllowed: Boolean = true
         override def convertToGpuImpl(): GpuExpression =
           GpuCoalesce(childExprs.map(_.convertToGpu()))
       }),
@@ -1767,6 +1773,7 @@ object GpuOverrides extends Logging {
             TypeSig.STRING)),
       (a, conf, p, r) => new UnixTimeExprMeta[DateFormatClass](a, conf, p, r) {
         override def isTimeZoneSupported = true
+        override protected def allowLegacyFormattingOnlyFormats: Boolean = true
         override def convertToGpu(lhs: Expression, rhs: Expression): GpuExpression =
           GpuDateFormatClass(lhs, rhs, strfFormat, a.timeZoneId)
       }
@@ -2823,6 +2830,34 @@ object GpuOverrides extends Logging {
         }
       }
     ),
+    expr[ArraySort](
+      "Sorts the input array in ascending order with nulls last according to the natural " +
+          "ordering of the elements (the default comparator). A custom comparator, or a nested " +
+          "element type (array or struct), falls back to the CPU",
+      ExprChecks.projectOnly(
+        TypeSig.ARRAY.nested(TypeSig.commonCudfTypes + TypeSig.NULL + TypeSig.DECIMAL_128),
+        TypeSig.ARRAY.nested(TypeSig.all),
+        Seq(
+          ParamCheck("array",
+            TypeSig.ARRAY.nested(TypeSig.commonCudfTypes + TypeSig.NULL + TypeSig.DECIMAL_128),
+            TypeSig.ARRAY.nested(TypeSig.all)))),
+      (in, conf, p, r) => new ExprMeta[ArraySort](in, conf, p, r) {
+        // Wrap only the array; listSortRows applies the default comparator natively, so the
+        // comparator lambda is excluded from children (neither converted nor type-checked).
+        // This must wrap exactly one child to stay 1:1 with the single ParamCheck above, which
+        // the framework pairs to childExprs positionally.
+        override val childExprs: Seq[BaseExprMeta[_]] =
+          Seq(GpuOverrides.wrapExpr(in.arguments.head, this.conf, Some(this)))
+
+        override def tagExprForGpu(): Unit = {
+          if (!GpuArraySort.isDefaultComparator(in)) {
+            willNotWorkOnGpu("array_sort with a custom comparator function is not supported " +
+                "on the GPU; only the default ordering (ascending, nulls last) is supported")
+          }
+        }
+        override def convertToGpuImpl(): GpuExpression =
+          GpuArraySort(childExprs.head.convertToGpu())
+      }),
     expr[CreateArray](
       "Returns an array with the given elements",
       ExprChecks.projectOnly(
@@ -2980,7 +3015,7 @@ object GpuOverrides extends Logging {
         Seq(
           ParamCheck("argument",
             TypeSig.ARRAY.nested(TypeSig.commonCudfTypes + TypeSig.DECIMAL_128 + TypeSig.NULL +
-                TypeSig.BINARY + TypeSig.STRUCT),
+                TypeSig.BINARY + TypeSig.ARRAY + TypeSig.STRUCT + TypeSig.MAP),
             TypeSig.ARRAY.nested(TypeSig.all)),
           ParamCheck("zero",
             TypeSig.commonCudfTypes + TypeSig.DECIMAL_128,
@@ -4007,9 +4042,10 @@ object GpuOverrides extends Logging {
       "Returns a struct value with the given `jsonStr` and `schema`",
       ExprChecks.projectOnly(
         TypeSig.STRUCT.nested(jsonStructReadTypes) +
-          TypeSig.MAP.nested(TypeSig.STRING).withPsNote(TypeEnum.MAP,
-          "MAP only supports keys and values that are of STRING type " +
-            "and is only supported at the top level"),
+          TypeSig.MAP.nested(TypeSig.STRING + TypeSig.ARRAY.nested(TypeSig.STRING))
+            .withPsNote(TypeEnum.MAP,
+          "MAP only supports keys of STRING type and values that are of STRING type " +
+            "or ARRAY of STRING type, and is only supported at the top level"),
         (TypeSig.STRUCT + TypeSig.MAP + TypeSig.ARRAY).nested(TypeSig.all),
         Seq(ParamCheck("jsonStr", TypeSig.STRING, TypeSig.STRING))),
       (a, conf, p, r) => new UnaryExprMeta[JsonToStructs](a, conf, p, r) {
@@ -4028,7 +4064,14 @@ object GpuOverrides extends Logging {
 
         override def tagExprForGpu(): Unit = {
           a.schema match {
+            // from_json to a MAP is a "raw" extraction: values (and, for ARRAY<STRING>, array
+            // elements) are raw JSON text. Verified vs Spark 3.5.5, it diverges on only two cases:
+            // escapes are not unescaped, and object/nested-array elements stay as raw JSON
+            // substrings. Scalar elements, whole-row null on a non-array value, and
+            // document-order duplicate keys all match Spark. See docs/compatibility.md and
+            // GpuJsonToStructs.
             case MapType(StringType, StringType, _) => ()
+            case MapType(StringType, ArrayType(StringType, _), _) => ()
             case st: StructType =>
               if (hasDuplicateFieldNames(st)) {
                 willNotWorkOnGpu("from_json on GPU does not support duplicate field " +
@@ -4040,8 +4083,8 @@ object GpuOverrides extends Logging {
                   "Set `spark.rapids.sql.json.read.datetime.enabled` to `true` to enable them.")
               }
             case _ =>
-              willNotWorkOnGpu("from_json on GPU only supports MapType<StringType, StringType> " +
-                "or StructType schema")
+              willNotWorkOnGpu("from_json on GPU only supports MapType<StringType, StringType>, " +
+                "MapType<StringType, ArrayType[StringType]>, or StructType schema")
           }
           GpuJsonScan.tagSupport(SQLConf.get, JsonToStructsReaderType, a.dataType, a.dataType,
             a.options, this)
