@@ -1,6 +1,6 @@
 ---
 layout: page
-title: NVIDIA cuDF pluign for Apache Spark Cache Serializer
+title: NVIDIA cuDF plugin for Apache Spark Cache Serializer
 parent: Additional Functionality
 nav_order: 2
 ---

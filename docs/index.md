@@ -6,7 +6,7 @@ permalink: /
 description: This site serves as a collection of documentation about the NVIDIA cuDF plugin for Apache Spark
 ---
 # Overview
-**If you are a customer looking for information on how to adopt cuDF for Apache Spark
+**If you are a customer looking for information on how to adopt the cuDF plugin
 for your Spark workloads, please go to our User Guide for more information: [link](https://docs.nvidia.com/spark-rapids/user-guide/latest/index.html).**
 
 The cuDF plugin leverages GPUs to accelerate processing via the

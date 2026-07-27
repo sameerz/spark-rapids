@@ -7,12 +7,11 @@ parent: Developer Overview
 
 # Shim Development
 
-cuDF for Apache Spark supports multiple feature version lines of
-Apache Spark such as 3.3.x, 3.4.x, 3.5.x, 4.x and a number of vendor releases that contain
-a mix of patches from different upstream releases. These artifacts are generally
-incompatible between each other, at both source code level and even more often
-at the binary level. The role of the Shim layer is to hide these issues from the
-common code, maximize reuse, and minimize logic duplication.
+The NVIDIA cuDF plugin for Apache Spark supports multiple feature version lines of Apache Spark such
+as 3.3.x, 3.4.x, 3.5.x, 4.x and a number of vendor releases that contain a mix of patches from
+different upstream releases. These artifacts are generally incompatible between each other, at both
+source code level and even more often at the binary level. The role of the Shim layer is to hide
+these issues from the common code, maximize reuse, and minimize logic duplication.
 
 This is achieved by using a ServiceProvider pattern. All Shims implement the same API,
 the suitable Shim implementation is loaded after detecting the current Spark build version

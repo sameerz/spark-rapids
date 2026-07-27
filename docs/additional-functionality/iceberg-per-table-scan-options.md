@@ -15,7 +15,7 @@ wants to tune scan behavior across an existing Spark session — for example
 before a benchmark run, or to try different split sizes against existing tables
 without modifying them.
 
-The NVIDIA cuDF plugin for Apachde Spark ships a thin Iceberg session-catalog wrapper that lets
+The NVIDIA cuDF plugin for Apache Spark ships a thin Iceberg session-catalog wrapper that lets
 these options be set via session conf at three scopes — per-table, per-catalog,
 and global. The wrapper is opt-in and a pure pass-through for any table whose
 conf is not set at any scope, so enabling it does not change behavior for

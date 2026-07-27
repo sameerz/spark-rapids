@@ -1,9 +1,9 @@
 # NVIDIA cuDF plugin for Apache Spark
 NOTE: For the latest stable [README.md](https://github.com/nvidia/cudf-spark/blob/main/README.md) ensure you are on the main branch.
 
-The NVIDIA cuDF plugin for Apache Spark provides a plugin library [Apache
-Spark](https://spark.apache.org) that leverages GPUs to accelerate processing via the
-[cuDF](https://rapids.ai) (CUDA DataFrame) libraries.
+The NVIDIA cuDF plugin for [Apache Spark](https://spark.apache.org) provides a plugin library that
+leverages GPUs to accelerate processing via the [cuDF](https://github.com/rapidsai/cudf) (CUDA
+DataFrame) libraries.
 
 Documentation on the current release can be found [here](https://nvidia.github.io/cudf-spark/).
 
