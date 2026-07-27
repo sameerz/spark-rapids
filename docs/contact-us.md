@@ -7,7 +7,7 @@ nav_order: 16
 
 ## Technical Support
 If you need any help or have questions on this product, please contact us:
-<a href="mailto:spark-rapids-support@nvidia.com">spark-rapids-support@nvidia.com</a>
+<a href="mailto:cudf-spark-support@nvidia.com">cudf-spark-support@nvidia.com</a>
 
 ## Issues and Discussions
 We use github to track bugs, feature requests, and answer questions. File an
