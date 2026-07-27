@@ -8,12 +8,12 @@ parent: Developer Overview
 # Dump tool for get_json_object
 
 ## Overview
-In order to help debug the issues with the `get_json_object` function, cudf for Spark provides a
-dump tool to save debug information to try and reproduce the issues. Note, the dumped data will be masked
-to protect the customer data.
+In order to help debug the issues with the `get_json_object` function, the NVIDIA cudf plugin for
+Apache Spark provides a dump tool to save debug information to try and reproduce the issues. Note,
+the dumped data will be masked to protect the customer data.
 
 ## How to enable
-This assumes that cudf for Spark has already been enabled.
+This assumes that cudf plugin has already been enabled.
 
 The `get_json_object` expression may be off by default so enable it first
 ```

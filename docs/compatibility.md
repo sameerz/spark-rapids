@@ -4,7 +4,7 @@ title: Compatibility
 nav_order: 5
 ---
 
-# cuDF for Apache Spark Compatibility with Apache Spark
+# NVIDIA cuDF plugin for Apache Spark Compatibility with Apache Spark
 
 The SQL plugin tries to produce results that are bit for bit identical with Apache Spark.  There are
 a number of cases where there are some differences. In most cases operators that produce different
@@ -31,7 +31,7 @@ Spark's sorting is typically a [stable](https://en.wikipedia.org/wiki/Sorting_al
 sort. Sort stability cannot be guaranteed in distributed work loads because the order in which
 upstream data arrives to a task is not guaranteed. Sort stability is only
 guaranteed in one situation which is reading and sorting data from a file using a single
-task/partition. cuDF for Spark does an unstable
+task/partition. The cuDF plugin does an unstable
 [out of core](https://en.wikipedia.org/wiki/External_memory_algorithm) sort by default. This
 simply means that the sort algorithm allows for spilling parts of the data if it is larger than
 can fit in the GPU's memory, but it does not guarantee ordering of rows when the ordering of the
@@ -54,13 +54,13 @@ difference. This happens in cases where a binary floating-point representation c
 capture a decimal value. For example `1.025` cannot exactly be represented and ends up being closer
 to `1.02499`. The Spark implementation of `round` converts it first to a decimal value with complex
 logic to make it `1.025` and then does the rounding.  This results in `round(1.025, 2)` under pure
-Spark getting a value of `1.03` but under cuDF for Spark it produces `1.02`. As a side note
+Spark getting a value of `1.03` but under the cuDF plugin it produces `1.02`. As a side note
 Python will produce `1.02`, Java does not have the ability to do a round like this built in, but if
 you do the simple operation of `Math.round(1.025 * 100.0)/100.0` you also get `1.02`.
 
 For the `degrees` functions, Spark's implementation relies on Java JDK's built-in functions
 `Math.toDegrees`. It is `angrad * 180.0 / PI` in Java 8 while `angrad * (180d / PI)` in Java 9+. So
-their results will differ depending on the JDK runtime versions when considering overflow. cuDF for Spark follows the behavior of Java 9+. Therefore, with JDK 8 or below, the `degrees` on GPU will not overflow on some very large numbers while the CPU version does.
+their results will differ depending on the JDK runtime versions when considering overflow. The cuDF plugin follows the behavior of Java 9+. Therefore, with JDK 8 or below, the `degrees` on GPU will not overflow on some very large numbers while the CPU version does.
 
 For aggregations the underlying implementation is doing the aggregations in parallel and due to race
 conditions within the computation itself the result may not be the same each time the query is
@@ -75,8 +75,8 @@ parallel reductions and are governed by the same config.
 
 For standard deviation and variance aggregations (`stddev`, `stddev_pop`, `stddev_samp`,
 `variance`, `var_pop`, and `var_samp`) on very large finite floating-point values, the exact
-mathematical result can exceed the range of a double. In these overflow cases Spark CPU and cuDF for
-Spark may report different IEEE floating-point sentinels, such as `NaN` versus
+mathematical result can exceed the range of a double. In these overflow cases Spark CPU and the cuDF plugin
+may report different IEEE floating-point sentinels, such as `NaN` versus
 `+Infinity`, because partial aggregate state can be merged in a different order. `-Infinity` is
 not an expected outcome for stddev/variance over finite inputs and is not treated as an accepted
 overflow sentinel. This is limited to overflow behavior for extreme inputs; ordinary finite
@@ -101,10 +101,10 @@ considered to be a rare occurrence.
 Apache Spark does not have a consistent way to handle `NaN` comparison. Sometimes, all `NaN` are
 considered as one unique value while other times they can be treated as different. The outcome of
 `NaN` comparison can differ in various operations and also changed between Spark versions.
-cuDF for Spark tries to match its output with Apache Spark except for a few operation(s) listed below:
+The cuDF plugin tries to match its output with Apache Spark except for a few operation(s) listed below:
  - `IN` SQL expression: `NaN` can be treated as different values in Spark 3.1.2 and
  prior versions, see [SPARK-36792](https://issues.apache.org/jira/browse/SPARK-36792) for more details.
-cuDF for Spark compares `NaN` values as equal for this operation which matches
+The cuDF plugin compares `NaN` values as equal for this operation which matches
 the behavior of Apache Spark 3.1.3 and later versions.
 
 
@@ -115,7 +115,7 @@ When processing the data, in most cases, it is temporarily converted to Java's `
 which allows for effectively unlimited precision. Overflows will be detected whenever the
 `BigDecimal` value is converted back into the Spark decimal type.
 
-cuDF for Spark does not implement a GPU equivalent of `BigDecimal`, but it does implement
+The cuDF plugin does not implement a GPU equivalent of `BigDecimal`, but it does implement
 computation on 256-bit values to allow the detection of overflows. The points at which overflows
 are detected may differ between the CPU and GPU. Spark gives no guarantees that overflows are
 detected if an intermediate value could overflow the original decimal type during computation
@@ -189,7 +189,7 @@ disable itself if it sees a format it cannot support.
 
 Invalid timestamps in Spark, ones that have the correct format, but the numbers produce invalid
 dates or times, can result in an exception by default and how they are parsed can be controlled
-through a config. cuDF for Spark does not support any of this and will produce an incorrect
+through a config. The cuDF plugin does not support any of this and will produce an incorrect
 date. Typically, one that overflowed.
 
 ### CSV Floating Point
@@ -203,9 +203,9 @@ then results in a number being returned when the CPU would have returned null.
 ### CSV ANSI day time interval
 This type was added in as a part of Spark 3.3.0, and it's not supported on Spark versions before 3.3.0.
 Apache Spark can [overflow](https://issues.apache.org/jira/browse/SPARK-38520) when reading ANSI day time interval values.
-cuDF for Spark does not overflow and as such is not bug for bug compatible with Spark in this case.
+The cuDF plugin does not overflow and as such is not bug for bug compatible with Spark in this case.
 
-Interval string in csv|Spark reads to|cuDF for Spark reads to|Comments|
+Interval string in csv|Spark reads to|cuDF plugin reads to|Comments|
 -----|-------------------------|-----------------|-----------|
 interval '106751992' day| INTERVAL '-106751990' DAY | NULL| Spark issue|
 interval '2562047789' hour| INTERVAL '-2562047787' HOUR | NULL| Spark issue|
@@ -225,7 +225,7 @@ INTERVAL MINUTE | INTERVAL '30' MINUTE                      | 30|
 INTERVAL MINUTE TO SECOND | INTERVAL '30:40.999999' MINUTE TO SECOND  | 30:40.999999|
 INTERVAL SECOND | INTERVAL '40.999999' SECOND               | 40.999999|
 
-Currently, cuDF for Spark only supports ANSI style.
+Currently, the cuDF plugin only supports ANSI style.
 
 ## Hive Text File
 
@@ -509,9 +509,6 @@ The following regular expression patterns are not yet supported on the GPU and w
 - Possessive quantifiers, such as `a*+`
 - Character classes that use union, intersection, or subtraction semantics, such as `[a-d[m-p]]`, `[a-z&&[def]]`,
   or `[a-z&&[^bc]]`
-- Lookahead/lookbehind groups: `(?=a)`, `(?!a)`, `(?<=a)`, `(?<!a)`
-- Independent groups: `(?>a)`
-- Named capture groups: `(?<n>a)`
 - Empty groups: `()`
 - Empty pattern: `""`
 
@@ -820,7 +817,7 @@ to `false`.
 
 ### Float to String
 
-cuDF for Apache Spark uses uses a method based on [ryu](https://github.com/ulfjack/ryu) when converting floating point data type to string. As a result the computed string can differ from the output of Spark in some cases: sometimes the output is shorter (which is arguably more accurate) and sometimes the output may differ in the precise digits output.
+The cuDF plugin uses a method based on [ryu](https://github.com/ulfjack/ryu) when converting floating point data type to string. As a result the computed string can differ from the output of Spark in some cases: sometimes the output is shorter (which is arguably more accurate) and sometimes the output may differ in the precise digits output.
 
 This configuration is enabled by default. To disable this operation on the GPU set
 [`spark.rapids.sql.castFloatToString.enabled`](additional-functionality/advanced_configs.md#sql.castFloatToString.enabled) to `false`.
@@ -869,18 +866,18 @@ The following formats/patterns are supported on the GPU. Timezone of UTC is assu
 ### Constant Folding
 
 ConstantFolding is an operator optimization rule in Catalyst that replaces expressions that can be
-statically evaluated with their equivalent literal values. cuDF for Spark relies on constant folding
+statically evaluated with their equivalent literal values. The cuDF plugin relies on constant folding
 and parts of the query will not be accelerated if
 `org.apache.spark.sql.catalyst.optimizer.ConstantFolding` is excluded as a rule.
 
 ### long/double to Timestamp
 Spark 330+ has an issue when casting a big enough long/double as timestamp, refer to https://issues.apache.org/jira/browse/SPARK-39209.
-Spark 330+ throws errors while cuDF for Spark can handle correctly when casting a big enough long/double as timestamp.
+Spark 330+ throws errors while the cuDF plugin can handle correctly when casting a big enough long/double as timestamp.
 
 ## JSON string handling
 The 0.5 release introduces the `get_json_object` operation.  The JSON specification only allows
 double quotes around strings in JSON data, whereas Spark allows single quotes around strings in JSON
-data.  The cuDF for Spark `get_json_object` operation on the GPU will return `None` in PySpark or
+data.  The cuDF plugin `get_json_object` operation on the GPU will return `None` in PySpark or
 `Null` in Scala when trying to match a string surrounded by single quotes.  This behavior will be
 updated in a future release to more closely match Spark.
 
@@ -906,9 +903,9 @@ throw exceptions, like for the `Add` expression if an overflow happens. This is 
 UDFs, because by their nature they are user defined and can have side effects like throwing
 exceptions.
 
-Currently, cuDF for Spark
+Currently, the cuDF plugin
 [assumes that there are no side effects](https://github.com/NVIDIA/cudf-spark/issues/3849).
-This can result it situations, specifically in ANSI mode, where cuDF for Spark will
+This can result it situations, specifically in ANSI mode, where the cuDF plugin will
 always throw an exception, but Spark on the CPU will not.  For example:
 
 ```scala
@@ -931,7 +928,7 @@ If the above example is run on the CPU you will get a result like.
 ```
 
 But if it is run on the GPU an overflow exception is thrown. As was explained before this
-is because cuDF for Spark will evaluate both `val + 1` and `null` regardless of
+is because the cuDF plugin will evaluate both `val + 1` and `null` regardless of
 the result of the condition. In some cases you can work around this. The above example
 could be re-written so the `if` happens before the `Add` operation.
 

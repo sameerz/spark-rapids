@@ -1,9 +1,9 @@
-# NVIDIA cuDF for Apache Spark
-NOTE: For the latest stable [README.md](https://github.com/nvidia/spark-rapids/blob/main/README.md) ensure you are on the main branch.
+# NVIDIA cuDF plugin for Apache Spark
+NOTE: For the latest stable [README.md](https://github.com/nvidia/cudf-spark/blob/main/README.md) ensure you are on the main branch.
 
-NVIDIA cuDF for Apache Spark provides a set of plugins for
-[Apache Spark](https://spark.apache.org) that leverage GPUs to accelerate processing
-via the [cuDF](https://rapids.ai) (CUDA DataFrame) libraries.
+The NVIDIA cuDF plugin for Apache Spark provides a plugin library [Apache
+Spark](https://spark.apache.org) that leverages GPUs to accelerate processing via the
+[cuDF](https://rapids.ai) (CUDA DataFrame) libraries.
 
 Documentation on the current release can be found [here](https://nvidia.github.io/cudf-spark/).
 
@@ -11,9 +11,9 @@ To get started and try the plugin out use the [getting started guide](https://do
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/NVIDIA/cudf-spark)
 
-Note: cuDF for Spark was formerly known as the RAPIDS Accelerator for Apache Spark.  Going forward,
-the project name is cuDF for Spark.  The RAPIDS name will be sunset over time.  Github links from
-`spark-rapids` will redirect to `cudf-spark`.  Artifact names will remain the same for now.
+Note: The NVIDIA cuDF plugin for Apache Spark was formerly known as the RAPIDS Accelerator for
+Apache Spark.  The RAPIDS name will be sunset over time.  Github links from `spark-rapids` will
+redirect to `cudf-spark`.  Artifact names will remain the same for now.
 
 ## Compatibility
 
@@ -50,8 +50,8 @@ See the [build instructions in the contributing guide](CONTRIBUTING.md#building-
 Tests are described [here](tests/README.md).
 
 ## Integration
-cuDF for Apache Spark provides some APIs for doing zero copy data
-transfer into other GPU enabled applications.  It is described
+The cuDF plugin provides some APIs for doing zero copy data transfer into other GPU enabled
+applications.  It is described
 [here](https://docs.nvidia.com/spark-rapids/user-guide/latest/additional-functionality/ml-integration.html).
 
 Currently, we are working with XGBoost to try to provide this integration out of the box.
@@ -71,9 +71,8 @@ for more details on how to use the tools.
 
 ## Dependency for External Projects
 
-If you need to develop some functionality on top of cuDF for Apache Spark (we currently
-limit support to GPU-accelerated UDFs) we recommend you declare our distribution artifact
-as a `provided` dependency.
+If you develop functionality on top of the cuDF plugin (we currently limit support to
+GPU-accelerated UDFs) we recommend you declare the distribution artifact as a `provided` dependency.
 
 ```xml
 <dependency>

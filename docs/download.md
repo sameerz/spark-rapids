@@ -4,17 +4,17 @@ title: Download
 nav_order: 3
 ---
 
-[cuDF for Apache Spark](https://github.com/NVIDIA/cudf-spark) provides a set of
+[NVIDIA cuDF plugin for Apache Spark](https://github.com/NVIDIA/cudf-spark) provides a set of
 plugins for Apache Spark that leverage GPUs to accelerate Dataframe and SQL processing.
 
 The accelerator is built upon the [cuDF project](https://github.com/rapidsai/cudf) and
 [UCX](https://github.com/openucx/ucx/).
 
-cuDF for Spark requires each worker node in the cluster to have an NVIDIA GPU and the [NVIDIA
+The cuDF plugin requires each worker node in the cluster to have an NVIDIA GPU and the [NVIDIA
 driver](https://www.nvidia.com/en-us/drivers/) installed.
 
-cuDF Spark consists of the rapids-4-spark plugin jar.  The jar is either preinstalled in the Spark
-classpath on all nodes or submitted with each job that uses cuDF for Spark. See the
+The cuDF plugin consists of the rapids-4-spark plugin jar.  The jar is either preinstalled in the Spark
+classpath on all nodes or submitted with each job that uses the cuDF plugin. See the
 [getting-started
 guide](https://docs.nvidia.com/spark-rapids/user-guide/latest/getting-started/overview.html) for
 more details.
@@ -31,7 +31,7 @@ The plugin is designed to work on NVIDIA Volta, Turing, Ampere, Ada Lovelace, Ho
 
 ### Software Requirements:
 
-    OS: cuDF for Spark is compatible with any Linux distribution with glibc >= 2.28 (Please check ldd --version output).  glibc 2.28 was released August 1, 2018.
+    OS: The cuDF plugin is compatible with any Linux distribution with glibc >= 2.28 (Please check ldd --version output).  glibc 2.28 was released August 1, 2018.
     Tested on Ubuntu 22.04, Ubuntu 24.04, Rocky Linux 8 and Rocky Linux 9
 
 	NVIDIA Driver*: R525+
@@ -73,10 +73,10 @@ for your hardware's minimum driver version.
 *For EMR support, please refer to the
 [Distributions](https://docs.nvidia.com/spark-rapids/user-guide/latest/faq.html#which-distributions-are-supported) section of the FAQ.
 
-### cuDF for Spark's Support Policy for Apache Spark
-The cuDF for Spark library maintains support for Apache Spark versions available for download from [Apache Spark](https://spark.apache.org/downloads.html)
+### cuDF Plugin Support Policy for Apache Spark
+The cuDF plugin maintains support for Apache Spark versions available for download from [Apache Spark](https://spark.apache.org/downloads.html)
 
-### Download RAPIDS Accelerator for Apache Spark v26.06.1
+### Download the NVIDIA cuDF plugin for Apache Spark v26.06.1
 
 #### CUDA 12
 
@@ -92,10 +92,10 @@ The cuDF for Spark library maintains support for Apache Spark versions available
 
 | Processor | Scala Version | Download Jar | Download Signature | Download From Maven |
 |-----------|---------------|--------------|--------------------|---------------------|
-| x86_64    | Scala 2.12    | [RAPIDS Accelerator v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.12&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
-| x86_64    | Scala 2.13    | [RAPIDS Accelerator v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.13&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
-| arm64     | Scala 2.12    | [RAPIDS Accelerator v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13-arm64.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13-arm64.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.12&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13-arm64&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
-| arm64     | Scala 2.13    | [RAPIDS Accelerator v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13-arm64.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13-arm64.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.13&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13-arm64&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
+| x86_64    | Scala 2.12    | [cuDF plugin v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.12&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
+| x86_64    | Scala 2.13    | [cuDF plugin v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.13&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
+| arm64     | Scala 2.12    | [cuDF plugin v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13-arm64.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/26.06.1/rapids-4-spark_2.12-26.06.1-cuda13-arm64.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.12&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13-arm64&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
+| arm64     | Scala 2.13    | [cuDF plugin v26.06.1](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13-arm64.jar) | [Signature](https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/26.06.1/rapids-4-spark_2.13-26.06.1-cuda13-arm64.jar.asc) | <pre>&lt;dependency&gt;<br/>    &lt;groupId&gt;com.nvidia&lt;/groupId&gt;<br/>    &lt;artifactId&gt;rapids-4-spark_2.13&lt;/artifactId&gt;<br/>    &lt;version&gt;26.06.1&lt;/version&gt;<br/>    &lt;classifier&gt;cuda13-arm64&lt;/classifier&gt;<br/>&lt;/dependency&gt;</pre> |
 
 
 The above packages are built against CUDA 12.9 or CUDA 13.1. They are tested on V100, T4, A10, A100, L4, H100 and GB100 GPUs.

@@ -18,9 +18,9 @@
 remote_theme: pmarsceill/just-the-docs
 
 aux_links:
-  "cuDF for Apache Spark User Guide":
-    - "//docs.nvidia.com/cudf-spark/user-guide/latest/index.html"
-  "cuDF for Apache Spark Plugin on Github":
+  "NVIDIA cuDF plugin for Apache Spark User Guide":
+    - "//docs.nvidia.com/spark-rapids/user-guide/latest/index.html"
+  "NVIDIA cuDF plugin for Apache Spark on Github":
     - "//github.com/nvidia/cudf-spark"
 
 plugins:
