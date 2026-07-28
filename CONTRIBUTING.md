@@ -48,7 +48,7 @@ building at least running to the `verify` phase, e.g.:
 mvn verify
 ```
 
-After a successful build, the cudf plugin jar will be in the `dist/target/` directory.
+After a successful build, the cuDF plugin jar will be in the `dist/target/` directory.
 This will build the plugin for a single version of Spark.  By default, this is Apache Spark
 3.3.0. To build against other versions of Spark you use the `-Dbuildver=XXX` command line option
 to Maven. For instance to build Spark 3.3.0 you would use:
