@@ -13,7 +13,7 @@ Apache Spark provides a dump tool to save debug information to try and reproduce
 the dumped data will be masked to protect the customer data.
 
 ## How to enable
-This assumes that the cudf plugin has already been enabled.
+This assumes that the cuDF plugin has already been enabled.
 
 The `get_json_object` expression may be off by default so enable it first
 ```
